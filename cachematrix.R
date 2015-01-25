@@ -36,18 +36,30 @@ makeCacheMatrix <- function(x = matrix()) {
 }
 
 
-## The cacheSolve function performs R's built-in "solve" function in a cached manner.
-## First, it attempts to retrieve the inverted matrix from the cache.  If the cache
-## is empty, it performs the calculation, caches the result, and returns it.
+## The cacheSolve function uses the cacheResults function (defined below) to perform
+## R's built-in solve function and store the results in a cache for later access.
+## [[ NOTE TO PEER REVIEWERS:  What you might expect to see in the cacheSolve function
+## is in the cacheResults function, which is called by this one.  A little different
+## organization, but yields benefits in easily providing cache functionality for other
+## matrix operations.  ]]
 
 cacheSolve <- function(x, ...) {
+	cacheResults(x, solve, ...)
+}
+
+
+## The cacheResults function performs a matrix operation in a cached manner. First, it
+## attempts to retrieve the results of the operation from the cache.  If the cache
+## is empty, it performs the calculation, caches the result, and returns it.
+
+cacheResults <- function(x, fun, ...) {
     m <- x$getcache()
-    if(!is.null(m)) {
-        message("getting cached data")
-        return(m)
-    }
-    data <- x$get()
-    m <- solve(data, ...)
-    x$setcache(m)
-    m
+	if(!is.null(m)) {
+	    message("getting cached data")
+	    return(m)
+	}
+	data <- x$get()
+	m <- fun(data, ...)
+	x$setcache(m)
+	m
 }
